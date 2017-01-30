@@ -15,11 +15,23 @@ public class FavoriteMoviesDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        final String SQL_CREATE_FAVORITE_MOVIES_TABLE = "CREATE TABLE " +
+                FavoriteMoviesContract.MovieFavoriteEntry.TABLE_NAME + " (" +
+                FavoriteMoviesContract.MovieFavoriteEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_MOVIE_ID + " TEXT NOT NULL, " +
+                FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_POSTER + " TEXT NOT NULL, " +
+                FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_TITLE + " TEXT NOT NULL, " +
+                FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_VOTE_AVERAGE + " TEXT NOT NULL, " +
+                FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_SYNOPSIS + " TEXT NOT NULL, " +
+                FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_RELEASE_DATE + " TEXT NOT NULL " +
+                "); ";
 
+        sqLiteDatabase.execSQL(SQL_CREATE_FAVORITE_MOVIES_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FavoriteMoviesContract.MovieFavoriteEntry.TABLE_NAME);
+        onCreate(sqLiteDatabase);
     }
 }

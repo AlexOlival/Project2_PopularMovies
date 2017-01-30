@@ -26,6 +26,10 @@
             android:label="@string/detail_activity_label"
             android:parentActivityName=".MainActivity">
         </activity>
+        <provider
+            android:authorities="com.alexandreolival.project2_popularmovies"
+            android:name="com.alexandreolival.project2_popularmovies.persistence.FavoriteMoviesContentProvider"
+            android:exported="false" />
     </application>
 
 </manifest>
