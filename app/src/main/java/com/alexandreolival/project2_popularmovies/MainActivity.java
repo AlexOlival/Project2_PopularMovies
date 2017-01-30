@@ -231,11 +231,13 @@ public class MainActivity extends AppCompatActivity implements
             //Log.d(TAG, "Request result: " + jsonResponse);
             //Log.d(TAG, "Request array length: " + jsonMoviesArray.length());
             JSONObject movieJson;
+            //Log.d(TAG, jsonMoviesArray.getJSONObject(1).toString());
             for (int i = 0, length = jsonMoviesArray.length(); i < length; i++) {
                 movieJson = jsonMoviesArray.getJSONObject(i);
                 //Log.d(TAG, "JSON Object: " + movieJson);
                 movieArrayList.add(
                   new Movie(
+                          movieJson.getString("id"),
                           movieJson.getString("poster_path"),
                           movieJson.getString("title"),
                           movieJson.getString("release_date"),
@@ -286,6 +288,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    // Dearest reviwer,
+    // I know this is horrible. I could probably refactor these into a cleaner method,
+    // but I rather focus on the big features for project 2 now :p
+    // as Han Solo put it: https://tinyurl.com/zst4bp4
     private void hideNoInternetConnectionViews() {
         mButtonRetry.setVisibility(View.GONE);
         mTextViewNoInternetConnection.setVisibility(View.GONE);

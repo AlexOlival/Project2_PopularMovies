@@ -20,7 +20,8 @@ public class NetworkUtil {
 
     public static final String API_KEY = "6d1bcca4ac9f8068563dc28464b30779";
     public static final String PARAMETER_API_KEY = "api_key";
-    //public static final String PARAMETER_NUMBER_OF_PAGE = "page";
+    public static final String PARAMETER_APPEND_MOVIE_DETAILS = "append_to_response";
+    public static final String MOVIE_DETAILS = "videos,reviews";
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         Log.d(TAG, "Performing network request with URL " + url.toString());

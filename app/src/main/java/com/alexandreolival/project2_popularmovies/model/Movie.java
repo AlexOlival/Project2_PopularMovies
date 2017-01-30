@@ -5,20 +5,29 @@ import android.os.Parcelable;
 
 import com.alexandreolival.project2_popularmovies.network.NetworkUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Movie implements Parcelable {
 
+    private String movieId;
     private String posterPath;
     private String title;
     private String releaseDate;
     private String voteAverage;
     private String synopsis;
+    private List<Review> reviews;
+    private List<Trailer> trailers;
+    private boolean isFavorite;
 
-    public Movie(String posterPath, String title, String releaseDate, String voteAverage, String synopsis) {
+    public Movie(String id, String posterPath, String title, String releaseDate, String voteAverage, String synopsis) {
+        this.movieId = id;
         this.posterPath = posterPath;
         this.title = title;
         this.releaseDate = releaseDate;
         this.voteAverage = voteAverage;
         this.synopsis = synopsis;
+        this.isFavorite = false; // Let's say movies aren't favorite, by default
     }
 
     public String getPosterUri() {
@@ -65,21 +74,47 @@ public class Movie implements Parcelable {
         this.synopsis = synopsis;
     }
 
+    public String getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(String id) {
+        this.movieId = id;
+    }
+
+    public List<Trailer> getTrailers() {
+        return trailers;
+    }
+
+    public void setTrailers(List<Trailer> trailerUrls) {
+        this.trailers = trailerUrls;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
+
     @Override
     public String toString() {
-        return "{ poster_uri: " + getPosterUri() +
+        return "{ id: " + getMovieId() +
+                " favorite: " + isFavorite() +
+                " poster_uri: " + getPosterUri() +
                 " title: " + getTitle() +
                 " release_date: " + getReleaseDate() +
                 " vote_average: " + getVoteAverage() +
                 " synopsis: " + getSynopsis() + " }";
     }
 
-    private Movie(Parcel in) {
-        posterPath = in.readString();
-        title = in.readString();
-        releaseDate = in.readString();
-        voteAverage = in.readString();
-        synopsis = in.readString();
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
     }
 
     @Override
@@ -89,17 +124,35 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(posterPath);
-        dest.writeString(title);
-        dest.writeString(releaseDate);
-        dest.writeString(voteAverage);
-        dest.writeString(synopsis);
+        dest.writeString(this.movieId);
+        dest.writeString(this.posterPath);
+        dest.writeString(this.title);
+        dest.writeString(this.releaseDate);
+        dest.writeString(this.voteAverage);
+        dest.writeString(this.synopsis);
+        dest.writeList(this.reviews);
+        dest.writeList(this.trailers);
+        dest.writeByte(this.isFavorite ? (byte) 1 : (byte) 0);
     }
 
-    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+    protected Movie(Parcel in) {
+        this.movieId = in.readString();
+        this.posterPath = in.readString();
+        this.title = in.readString();
+        this.releaseDate = in.readString();
+        this.voteAverage = in.readString();
+        this.synopsis = in.readString();
+        this.reviews = new ArrayList<Review>();
+        in.readList(this.reviews, Review.class.getClassLoader());
+        this.trailers = new ArrayList<Trailer>();
+        in.readList(this.trailers, Trailer.class.getClassLoader());
+        this.isFavorite = in.readByte() != 0;
+    }
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
         @Override
-        public Movie createFromParcel(Parcel in) {
-            return new Movie(in);
+        public Movie createFromParcel(Parcel source) {
+            return new Movie(source);
         }
 
         @Override
@@ -107,5 +160,4 @@ public class Movie implements Parcelable {
             return new Movie[size];
         }
     };
-
 }
