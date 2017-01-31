@@ -57,6 +57,9 @@ public class DetailActivity extends AppCompatActivity
             Log.d(TAG, "Got movie from intent: " + getIntent().getParcelableExtra(MOVIE_OBJECT_EXTRA).toString());
             mMovie = getIntent().getParcelableExtra(MOVIE_OBJECT_EXTRA);
 
+            // For the sake of speed I did not refactor this using Butterknife. I did appreciate the suggestion
+            // and will use it in future projects!
+
             TextView textViewTitle = (TextView) findViewById(com.alexandreolival.project2_popularmovies.R.id.text_view_movie_title);
             TextView textViewSynopsis = (TextView) findViewById(com.alexandreolival.project2_popularmovies.R.id.text_view_movie_synopsis);
             TextView textViewRating = (TextView) findViewById(com.alexandreolival.project2_popularmovies.R.id.text_view_movie_rating);
@@ -124,8 +127,21 @@ public class DetailActivity extends AppCompatActivity
             case R.id.toggle_favorite:
                 ContentValues contentValues;
                 if (mMovie.isFavorite()) {
-                    mMovie.setFavorite(false);
-                    item.setIcon(R.drawable.ic_not_favorite);
+                    int deletedRows = getContentResolver().delete(
+                            FavoriteMoviesContract.MovieFavoriteEntry.CONTENT_URI
+                                    .buildUpon().appendPath(mMovie.getMovieId()).build(),
+                            null, null);
+
+                    if (deletedRows != 0) {
+                        mMovie.setFavorite(false);
+                        item.setIcon(R.drawable.ic_not_favorite);
+                        Toast.makeText(getBaseContext(),
+                                R.string.toast_removed_from_favorites, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getBaseContext(),
+                                R.string.toast_error_removing_from_favorites,
+                                Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     contentValues = new ContentValues();
                     contentValues.put(
@@ -157,11 +173,16 @@ public class DetailActivity extends AppCompatActivity
                             FavoriteMoviesContract.MovieFavoriteEntry.CONTENT_URI, contentValues);
 
                     if (uri != null) {
-                        Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_SHORT).show();
+                        mMovie.setFavorite(true);
+                        item.setIcon(R.drawable.ic_favorite);
+                        Toast.makeText(getBaseContext(),
+                                R.string.toast_saved_to_favorites, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getBaseContext(),
+                                R.string.toast_error_saving_to_favorites,
+                                Toast.LENGTH_SHORT).show();
                     }
 
-                    mMovie.setFavorite(true);
-                    item.setIcon(R.drawable.ic_favorite);
                 }
                 return true;
         }
@@ -224,8 +245,10 @@ public class DetailActivity extends AppCompatActivity
         ArrayList<Trailer> trailers = new ArrayList<>();
         try {
             JSONObject jsonResponse = new JSONObject(data);
-            JSONArray jsonTrailersArray = jsonResponse.getJSONObject("videos").getJSONArray("results");
-            JSONArray jsonReviewsArray = jsonResponse.getJSONObject("reviews").getJSONArray("results");
+            JSONArray jsonTrailersArray =
+                    jsonResponse.getJSONObject("videos").getJSONArray("results");
+            JSONArray jsonReviewsArray =
+                    jsonResponse.getJSONObject("reviews").getJSONArray("results");
             //Log.d(TAG, "jsonTrailersArray" + jsonTrailersArray);
             //Log.d(TAG, "jsonReviewsArray: " + jsonReviewsArray);
 

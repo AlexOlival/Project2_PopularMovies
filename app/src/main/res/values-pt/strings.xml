@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="button_retry_loading_movies_text">Tentar de novo</string>
+    <string name="content_description_movie_poster">Poster do Filme</string>
+    <string name="detail_activity_label">Detalhes do Filme</string>
+    <string name="menu_item_favorite">Marcar ou desmarcar como favorito</string>
+    <string name="menu_item_show_favorites">Mostrar favoritos</string>
+    <string name="menu_item_sort_highest_rated">Ordenar por crítica</string>
+    <string name="menu_item_sort_most_popular">Ordenar por popularidade</string>
+    <string name="text_view_no_internet_connection_text">Não tem ligação à Internet</string>
+    <string name="toast_error_removing_from_favorites">Não foi possível remover o filme dos favoritos</string>
+    <string name="toast_error_saving_to_favorites">Erro a guardar para os favoritos!</string>
+    <string name="toast_internet_connectivity_error">Ainda não tem ligação à Internet</string>
+    <string name="toast_movie_detail_error">Ocorreu um erro a mostrar os dados do filme</string>
+    <string name="toast_no_favorites">Não tem filmes favoritos!</string>
+    <string name="toast_removed_from_favorites">Removido dos favoritos!</string>
+    <string name="toast_saved_to_favorites">Adicionado aos favoritos!</string>
+</resources>

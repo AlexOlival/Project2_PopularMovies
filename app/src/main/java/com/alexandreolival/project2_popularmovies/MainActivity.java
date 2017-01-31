@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements
     protected ProgressBar mProgressBarLoadingMovies;
     private RecyclerView mRecyclerView;
 
-    private int mCurrentSortingOrder;
+    protected int mCurrentSortingOrder;
 
     // Yikes... after writing this, I researched a way to separate these off the MainActivity.
     // but for the sake of speed, I'll leave them as inner classes.
@@ -217,13 +217,17 @@ public class MainActivity extends AppCompatActivity implements
 
             cursor.close();
 
-            if (movieArrayList.size() == 0) {
+            if (movieArrayList.size() == 0 && mCurrentSortingOrder == SHOWING_FAVORITES) {
                 Toast.makeText(MainActivity.this, R.string.toast_no_favorites,
                         Toast.LENGTH_SHORT).show();
-            } else {
-                for (Movie m : movieArrayList) {
-                    Log.d(TAG, m.toString());
+                // There are no favorites! Default to sorting movies by popularity
+                if (checkInternetConnectivity()) {
+                    loadMoviesSortedByPopularity();
+                } else {
+                    showNoInternetConnectionViews();
                 }
+            } else {
+                // This way I don't need to create a new adapter. It's still an array!
                 mMovieAdapter.setMovieList(movieArrayList);
             }
 
@@ -279,10 +283,18 @@ public class MainActivity extends AppCompatActivity implements
             } else {
                 showNoInternetConnectionViews();
             }
+        } else if (mCurrentSortingOrder == SHOWING_FAVORITES) {
+            // Check if there was any changes on the favorites database after resuming from
+            // DetailActivity like if the user removed a movie from the favorites
+            // A bit messy because I'm avoiding to use another adapter with cursor just for the
+            // favorites, and I'm using the same with an array
+
+            getSupportLoaderManager().restartLoader(FAVORITE_DB_LOADER_ID, null,
+                    mFavoriteMoviesDatabaseLoaderListener);
         }
     }
 
-    private void loadMoviesSortedByPopularity() {
+    protected void loadMoviesSortedByPopularity() {
         mCurrentSortingOrder = SORTED_BY_POPULARITY;
         Uri builtUri = Uri.parse(NetworkUtil.BASE_MOVIEDB_METADATA_URL).buildUpon()
                 .appendPath(NetworkUtil.PATH_SORT_BY_POPULAR)
@@ -369,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case com.alexandreolival.project2_popularmovies.R.id.sort_most_popular:
+            case R.id.sort_most_popular:
                 if (checkInternetConnectivity()) {
                     loadMoviesSortedByPopularity();
                 } else {
@@ -377,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 return true;
 
-            case com.alexandreolival.project2_popularmovies.R.id.sort_highest_rated:
+            case R.id.sort_highest_rated:
                 if (checkInternetConnectivity()) {
                     loadMoviesSortedByRatings();
                 } else {
@@ -398,7 +410,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private boolean checkInternetConnectivity() {
+    boolean checkInternetConnectivity() {
         ConnectivityManager cm =
                 (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -439,5 +451,4 @@ public class MainActivity extends AppCompatActivity implements
         mTextViewNoInternetConnection.setVisibility(View.VISIBLE);
         mButtonRetry.setVisibility(View.VISIBLE);
     }
-
 }

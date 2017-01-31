@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
+import static com.alexandreolival.project2_popularmovies.persistence.FavoriteMoviesContract.MovieFavoriteEntry.TABLE_NAME;
+
 public class FavoriteMoviesContentProvider extends ContentProvider {
 
     public static final int FAVORITE_MOVIES = 100;
@@ -51,7 +53,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case FAVORITE_MOVIES:
-                returnCursor = database.query(FavoriteMoviesContract.MovieFavoriteEntry.TABLE_NAME,
+                returnCursor = database.query(TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -66,7 +68,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
                         FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_MOVIE_ID + "=?";
                 String[] whereClauseArguments = new String[] {id};
 
-                returnCursor = database.query(FavoriteMoviesContract.MovieFavoriteEntry.TABLE_NAME,
+                returnCursor = database.query(TABLE_NAME,
                         projection,
                         idWhereClause,
                         whereClauseArguments,
@@ -98,7 +100,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case FAVORITE_MOVIES:
-                long id = database.insert(FavoriteMoviesContract.MovieFavoriteEntry.TABLE_NAME,
+                long id = database.insert(TABLE_NAME,
                         null,
                         contentValues);
 
@@ -120,11 +122,32 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String s, String[] strings) {
-        return 0;
+        final SQLiteDatabase database = mFavoriteMoviesDbHelper.getWritableDatabase();
+
+        int rowsDeleted;
+
+        switch (sUriMatcher.match(uri)) {
+            case FAVORITE_MOVIE_BY_ID:
+                String movieId = uri.getPathSegments().get(1);
+                rowsDeleted = database.delete(TABLE_NAME,
+                        FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_MOVIE_ID + "=?",
+                        new String[]{movieId});
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsDeleted;
     }
 
     @Override
     public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
-        return 0;
+        // We don't need to update favorite records
+        throw new UnsupportedOperationException("Updating isn't allowed!");
     }
 }

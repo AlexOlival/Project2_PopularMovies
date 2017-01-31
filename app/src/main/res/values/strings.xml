@@ -1,18 +1,20 @@
 <resources>
-    <string name="app_name">Project2_PopularMovies_v2.0</string>
+    <string name="app_name" translatable="false">Project2_PopularMovies_v2.0</string>
     <string name="content_description_movie_poster">Movie Poster</string>
     <string name="menu_item_sort_most_popular">Sort by popularity</string>
     <string name="menu_item_sort_highest_rated">Sort by rating</string>
     <string name="menu_item_favorite">Toggle favorite</string>
-    <string name="main_activity_label">Pop Movies v2.0</string>
-    <string name="snackbar_action_retry">Retry</string>
+    <string name="main_activity_label" translatable="false">Pop Movies v2.0</string>
     <string name="button_retry_loading_movies_text">Retry</string>
     <string name="text_view_no_internet_connection_text">You have no internet connection</string>
     <string name="detail_activity_label">Movie Detail</string>
     <string name="toast_movie_detail_error">There was an error displaying the movie data</string>
     <string name="toast_internet_connectivity_error">You still have no internet connectivity</string>
-    <string name="vote_average_maximum_score">/10</string>
-    <string name="transition_movie_poster">poster</string>
+    <string name="vote_average_maximum_score" translatable="false">/10</string>
     <string name="menu_item_show_favorites">Show favorites</string>
     <string name="toast_no_favorites">You don\'t have any favorite movies!</string>
+    <string name="toast_saved_to_favorites">Added to favorites!</string>
+    <string name="toast_error_saving_to_favorites">Error saving to favorites!</string>
+    <string name="toast_removed_from_favorites">Removed from favorites!</string>
+    <string name="toast_error_removing_from_favorites">Could not remove movie from favorites</string>
 </resources>
