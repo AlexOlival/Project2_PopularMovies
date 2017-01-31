@@ -275,20 +275,13 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onRestart();
-        // To fix an annoying bug; the ProgressBar would show when resuming from detail activity
-        if (mCurrentSortingOrder == SORTED_BY_POPULARITY ||
-                mCurrentSortingOrder == SORTED_BY_RATING) {
-            if (checkInternetConnectivity()) {
-                hideNoInternetConnectionViews();
-            } else {
-                showNoInternetConnectionViews();
-            }
-        } else if (mCurrentSortingOrder == SHOWING_FAVORITES) {
-            // Check if there was any changes on the favorites database after resuming from
-            // DetailActivity like if the user removed a movie from the favorites
-            // A bit messy because I'm avoiding to use another adapter with cursor just for the
-            // favorites, and I'm using the same with an array
 
+        // Check if there was any changes on the favorites database after resuming from
+        // DetailActivity like if the user removed a movie from the favorites
+        // A bit messy because I'm avoiding to use another adapter with cursor just for the
+        // favorites, and I'm using the same with an array
+
+        if (mCurrentSortingOrder == SHOWING_FAVORITES) {
             getSupportLoaderManager().restartLoader(FAVORITE_DB_LOADER_ID, null,
                     mFavoriteMoviesDatabaseLoaderListener);
         }
@@ -346,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG, "Starting DetailActivity");
 
         if (isInFavoriteDatabase(clickedMovieItem)) {
+            // Let DetailActivity know this is a favorite movie
             clickedMovieItem.setFavorite(true);
         }
 
@@ -366,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements
             // It means this movie is in the favorites database!
             return cursor.getCount() != 0;
         } else {
-            // we assume it's not...
+            // We assume it is not...
             return false;
         }
     }
@@ -436,10 +430,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    // Dearest reviwer,
-    // I know this is horrible. I could probably refactor these into a cleaner method,
-    // but I rather focus on the big features for project 2 now :p
-    // as Han Solo put it: https://tinyurl.com/zst4bp4
     protected void hideNoInternetConnectionViews() {
         mButtonRetry.setVisibility(View.GONE);
         mTextViewNoInternetConnection.setVisibility(View.GONE);

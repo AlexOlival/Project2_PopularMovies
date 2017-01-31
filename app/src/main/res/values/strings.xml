@@ -17,4 +17,7 @@
     <string name="toast_error_saving_to_favorites">Error saving to favorites!</string>
     <string name="toast_removed_from_favorites">Removed from favorites!</string>
     <string name="toast_error_removing_from_favorites">Could not remove movie from favorites</string>
+    <string name="rating">Rating</string>
+    <string name="release_date">Release Date</string>
+    <string name="synopsis">Synopsis</string>
 </resources>
