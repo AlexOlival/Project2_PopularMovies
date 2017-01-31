@@ -20,14 +20,25 @@ public class Movie implements Parcelable {
     private List<Trailer> trailers;
     private boolean isFavorite;
 
-    public Movie(String id, String posterPath, String title, String releaseDate, String voteAverage, String synopsis) {
+    public Movie(String id, String posterPath, String title, String releaseDate, String voteAverage,
+                 String synopsis) {
         this.movieId = id;
         this.posterPath = posterPath;
         this.title = title;
         this.releaseDate = releaseDate;
         this.voteAverage = voteAverage;
         this.synopsis = synopsis;
-        this.isFavorite = false; // Let's say movies aren't favorite, by default
+    }
+
+    public Movie(String id, String posterPath, String title, String releaseDate, String voteAverage,
+                 String synopsis, boolean isFavorite) {
+        this.movieId = id;
+        this.posterPath = posterPath;
+        this.title = title;
+        this.releaseDate = releaseDate;
+        this.voteAverage = voteAverage;
+        this.synopsis = synopsis;
+        this.isFavorite = isFavorite;
     }
 
     public String getPosterUri() {

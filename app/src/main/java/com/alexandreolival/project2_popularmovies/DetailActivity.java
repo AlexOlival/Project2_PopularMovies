@@ -1,5 +1,6 @@
 package com.alexandreolival.project2_popularmovies;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,6 +22,7 @@ import com.alexandreolival.project2_popularmovies.model.Movie;
 import com.alexandreolival.project2_popularmovies.model.Review;
 import com.alexandreolival.project2_popularmovies.model.Trailer;
 import com.alexandreolival.project2_popularmovies.network.NetworkUtil;
+import com.alexandreolival.project2_popularmovies.persistence.FavoriteMoviesContract;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -118,16 +120,46 @@ public class DetailActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            
-            case android.R.id.home:
-                supportFinishAfterTransition();
-                return true;
 
             case R.id.toggle_favorite:
+                ContentValues contentValues;
                 if (mMovie.isFavorite()) {
                     mMovie.setFavorite(false);
                     item.setIcon(R.drawable.ic_not_favorite);
                 } else {
+                    contentValues = new ContentValues();
+                    contentValues.put(
+                            FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_MOVIE_ID,
+                            mMovie.getMovieId()
+                    );
+                    contentValues.put(
+                            FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_POSTER,
+                            mMovie.getPosterPath()
+                    );
+                    contentValues.put(
+                            FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_RELEASE_DATE,
+                            mMovie.getReleaseDate()
+                    );
+                    contentValues.put(
+                            FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_SYNOPSIS,
+                            mMovie.getSynopsis()
+                    );
+                    contentValues.put(
+                            FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_TITLE,
+                            mMovie.getTitle()
+                    );
+                    contentValues.put(
+                            FavoriteMoviesContract.MovieFavoriteEntry.COLUMN_NAME_VOTE_AVERAGE,
+                            mMovie.getVoteAverage()
+                    );
+
+                    Uri uri = getContentResolver().insert(
+                            FavoriteMoviesContract.MovieFavoriteEntry.CONTENT_URI, contentValues);
+
+                    if (uri != null) {
+                        Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_SHORT).show();
+                    }
+
                     mMovie.setFavorite(true);
                     item.setIcon(R.drawable.ic_favorite);
                 }

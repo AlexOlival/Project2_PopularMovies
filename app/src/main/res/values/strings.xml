@@ -13,4 +13,6 @@
     <string name="toast_internet_connectivity_error">You still have no internet connectivity</string>
     <string name="vote_average_maximum_score">/10</string>
     <string name="transition_movie_poster">poster</string>
+    <string name="menu_item_show_favorites">Show favorites</string>
+    <string name="toast_no_favorites">You don\'t have any favorite movies!</string>
 </resources>
