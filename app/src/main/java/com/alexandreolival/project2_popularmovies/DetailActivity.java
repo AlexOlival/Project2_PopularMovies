@@ -39,7 +39,7 @@ public class DetailActivity extends AppCompatActivity {
                     getIntent().getParcelableExtra(MOVIE_OBJECT_EXTRA).toString());
             mMovie = getIntent().getParcelableExtra(MOVIE_OBJECT_EXTRA);
 
-            // For the sake of speed I did not refactor this using Butterknife.
+            // For the sake of speed I did not refactor this using butter knife.
             // I did appreciate the suggestion and will use it in future projects!
             TextView textViewTitle = (TextView) findViewById(R.id.text_view_movie_title);
             TextView textViewSynopsis = (TextView) findViewById(R.id.text_view_movie_synopsis);

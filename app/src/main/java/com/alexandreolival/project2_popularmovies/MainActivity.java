@@ -43,6 +43,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.ListItemClickedListener, View.OnClickListener {
 
+    // I learned that you can call [Activity].class.getSimpleName()
+    // will keep in mind in future!
     private static final String TAG = "MainActivity";
 
     protected MovieAdapter mMovieAdapter;
@@ -57,6 +59,9 @@ public class MainActivity extends AppCompatActivity implements
     private static final String MOVIE_DB_QUERY_URL_EXTRA = "MOVIE_DB_QUERY_URL";
     private static final String MOVIE_DB_URL_EXTRA = "MOVIE_DB_URL";
 
+    private static final String KEY_SORTING_ORDER = "sorting_order";
+    private static final String KEY_MOVIES = "movies";
+
     private Button mButtonRetry;
     private TextView mTextViewNoInternetConnection;
     protected ProgressBar mProgressBarLoadingMovies;
@@ -64,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements
 
     protected int mCurrentSortingOrder;
 
-    // So the trailers & reviews loader knows which object he's refering too
+    // So the trailers & reviews loader knows which object it's referring too
     protected Movie mClickedMovie;
 
     // Yikes... after writing this, I researched a way to separate these off the MainActivity.
@@ -118,7 +123,6 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public void onLoadFinished(Loader<String> loader, String data) {
-            mProgressBarLoadingMovies.setVisibility(View.GONE);
             List<Movie> movieArrayList = new ArrayList<>();
             try {
                 JSONObject jsonResponse = new JSONObject(data);
@@ -152,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements
             } else {
                 showNoInternetConnectionViews();
             }
+            mProgressBarLoadingMovies.setVisibility(View.GONE);
         }
 
         @Override
@@ -161,12 +166,13 @@ public class MainActivity extends AppCompatActivity implements
     private LoaderManager.LoaderCallbacks<Cursor> mFavoriteMoviesDatabaseLoaderListener
             = new LoaderManager.LoaderCallbacks<Cursor>() {
         @Override
-        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        public Loader<Cursor> onCreateLoader(int id, final Bundle args) {
             return new AsyncTaskLoader<Cursor>(getBaseContext()) {
 
                 @Override
                 protected void onStartLoading() {
                     super.onStartLoading();
+                    mProgressBarLoadingMovies.setVisibility(View.VISIBLE);
                     forceLoad();
                 }
 
@@ -227,10 +233,18 @@ public class MainActivity extends AppCompatActivity implements
             if (movieArrayList.size() == 0) {
                 Toast.makeText(MainActivity.this, R.string.toast_no_favorites,
                         Toast.LENGTH_SHORT).show();
-                // There are no favorites! Do nothing
+                // There are no favorites! If there's network fallback to sorting by popularity
+                if (isConnectedToNetwork()) {
+                    loadMoviesSortedByPopularity();
+                } else {
+                    showNoInternetConnectionViews();
+                }
             } else {
                 // We have favorites!
-                mCurrentSortingOrder = SHOWING_FAVORITES;
+                if (!isConnectedToNetwork()) {
+                    // Irrelevant if we have network. This pulls from the local persistence
+                    hideNoInternetConnectionViews();
+                }
                 mMovieAdapter.setMovieList(movieArrayList);
             }
 
@@ -371,17 +385,25 @@ public class MainActivity extends AppCompatActivity implements
         mMovieAdapter = new MovieAdapter(this);
         mRecyclerView.setAdapter(mMovieAdapter);
 
-        // First load
-        if (checkInternetConnectivity()) {
-            loadMoviesSortedByPopularity();
-        } else {
-            showNoInternetConnectionViews();
+        if (savedInstanceState == null) {
+            // First load
+            if (isConnectedToNetwork()) {
+                loadMoviesSortedByPopularity();
+            } else {
+                showNoInternetConnectionViews();
+            }
         }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        // Sometimes it shows the progress bar again after resuming from DetailActivity...
+        // I'm not entirely sure why. I managed to reproduce the bug in an old 4.1 phone because
+        // the RecyclerView has padding between the posters in that smaller screen
+        mProgressBarLoadingMovies.setVisibility(View.GONE);
 
         // Check if there was any changes on the favorites database after resuming from
         // DetailActivity, like if the user removed a movie from the favorites. A bit messy
@@ -389,8 +411,26 @@ public class MainActivity extends AppCompatActivity implements
         // but it's working fine so far. DRY right?
 
         if (mCurrentSortingOrder == SHOWING_FAVORITES) {
-            getSupportLoaderManager().restartLoader(FAVORITE_DB_LOADER_ID, null,
-                    mFavoriteMoviesDatabaseLoaderListener);
+            loadFavoriteMovies();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_SORTING_ORDER, mCurrentSortingOrder);
+        if (mMovieAdapter.getMovieList() != null) {
+            outState.putParcelableArrayList(KEY_MOVIES, mMovieAdapter.getMovieList());
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.d(TAG, "Restoring instance state");
+        super.onRestoreInstanceState(savedInstanceState);
+        mCurrentSortingOrder = savedInstanceState.getInt(KEY_SORTING_ORDER);
+        if (savedInstanceState.containsKey(KEY_MOVIES)) {
+            mMovieAdapter.setMovieList(savedInstanceState.<Movie>getParcelableArrayList(KEY_MOVIES));
         }
     }
 
@@ -440,6 +480,12 @@ public class MainActivity extends AppCompatActivity implements
                 mMovieDatabaseLoaderListener);
     }
 
+    private void loadFavoriteMovies() {
+        mCurrentSortingOrder = SHOWING_FAVORITES;
+        getSupportLoaderManager().restartLoader(FAVORITE_DB_LOADER_ID, null,
+                mFavoriteMoviesDatabaseLoaderListener);
+    }
+
     private void loadMovieReviewsAndTrailers() {
         Uri builtUri = Uri.parse(NetworkUtil.BASE_MOVIEDB_METADATA_URL).buildUpon()
                 .appendPath(mClickedMovie.getMovieId())
@@ -478,7 +524,7 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         // Prefetch the trailers and movies lazy load style
-        if (checkInternetConnectivity()) {
+        if (isConnectedToNetwork()) {
             // we have internet
             if (clickedMovieItem.getTrailers() == null || clickedMovieItem.getReviews() == null) {
                 // no trailers or reviews, fetch and launch!
@@ -487,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements
                 // we already have trailers or reviews, launch!
                 startActivity(DetailActivity.getIntent(this, mClickedMovie));
             }
-        } else if (!checkInternetConnectivity()) {
+        } else if (!isConnectedToNetwork()) {
             // no internet
             if (clickedMovieItem.getTrailers() != null || clickedMovieItem.getReviews() != null) {
                 // if we have trailers or reviews, all good
@@ -535,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sort_most_popular:
-                if (checkInternetConnectivity()) {
+                if (isConnectedToNetwork()) {
                     loadMoviesSortedByPopularity();
                 } else {
                     showNoInternetConnectionViews();
@@ -543,7 +589,7 @@ public class MainActivity extends AppCompatActivity implements
                 return true;
 
             case R.id.sort_highest_rated:
-                if (checkInternetConnectivity()) {
+                if (isConnectedToNetwork()) {
                     loadMoviesSortedByRatings();
                 } else {
                     showNoInternetConnectionViews();
@@ -551,10 +597,7 @@ public class MainActivity extends AppCompatActivity implements
                 return true;
 
             case R.id.show_favorites:
-                // Irrelevant if we have network or not
-                hideNoInternetConnectionViews();
-                getSupportLoaderManager().restartLoader(FAVORITE_DB_LOADER_ID, null,
-                        mFavoriteMoviesDatabaseLoaderListener);
+                loadFavoriteMovies();
                 return true;
 
             default:
@@ -562,7 +605,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    boolean checkInternetConnectivity() {
+    boolean isConnectedToNetwork() {
         ConnectivityManager cm =
                 (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -573,14 +616,22 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case com.alexandreolival.project2_popularmovies.R.id.button_retry_loading_movies:
-                if (checkInternetConnectivity()) {
+            case R.id.button_retry_loading_movies:
+                if (isConnectedToNetwork()) {
                     hideNoInternetConnectionViews();
-                    loadMoviesSortedByPopularity();
-                } else {
-                    if (mProgressBarLoadingMovies.getVisibility() == View.VISIBLE) {
-                        mProgressBarLoadingMovies.setVisibility(View.GONE);
+                    switch (mCurrentSortingOrder) {
+                        case SORTED_BY_POPULARITY:
+                            loadMoviesSortedByPopularity();
+                            break;
+
+                        case SORTED_BY_RATING:
+                            loadMoviesSortedByRatings();
+                            break;
+
+                        default:
+                            loadMoviesSortedByPopularity();
                     }
+                } else {
                     Toast.makeText(this, getString(com.alexandreolival.project2_popularmovies.R.string.toast_internet_connectivity_error),
                             Toast.LENGTH_SHORT).show();
                 }
@@ -599,4 +650,5 @@ public class MainActivity extends AppCompatActivity implements
         mTextViewNoInternetConnection.setVisibility(View.VISIBLE);
         mButtonRetry.setVisibility(View.VISIBLE);
     }
+
 }

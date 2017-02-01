@@ -12,6 +12,7 @@ import com.alexandreolival.project2_popularmovies.R;
 import com.alexandreolival.project2_popularmovies.model.Movie;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
@@ -24,7 +25,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         void onListItemClicked(Movie clickedItem, View view);
     }
 
-    final private ListItemClickedListener mListItemClickedListener;
+    private final ListItemClickedListener mListItemClickedListener;
 
     public MovieAdapter(ListItemClickedListener listItemClickedListener) {
         mListItemClickedListener = listItemClickedListener;
@@ -65,6 +66,20 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         }
         this.mMovieList = movieList;
         notifyDataSetChanged();
+    }
+
+    public ArrayList<Movie> getMovieList() {
+        if (mMovieList != null) {
+            return new ArrayList<>(mMovieList);
+        } else {
+            return null;
+        }
+    }
+
+    public void clearMovieList() {
+        if (mMovieList != null) {
+            mMovieList.clear();
+        }
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
