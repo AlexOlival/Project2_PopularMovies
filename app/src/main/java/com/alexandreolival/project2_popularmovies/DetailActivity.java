@@ -7,19 +7,25 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alexandreolival.project2_popularmovies.adapters.TrailerAdapter;
 import com.alexandreolival.project2_popularmovies.model.Movie;
+import com.alexandreolival.project2_popularmovies.model.Trailer;
 import com.alexandreolival.project2_popularmovies.persistence.FavoriteMoviesContract;
 import com.squareup.picasso.Picasso;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements
+        TrailerAdapter.ShareButtonClickedListener, TrailerAdapter.WatchButtonClickedListener {
 
     private static final String MOVIE_OBJECT_EXTRA = "movie_object";
     private static final String TAG = "DetailActivity";
@@ -53,6 +59,23 @@ public class DetailActivity extends AppCompatActivity {
             String score = mMovie.getVoteAverage() + getString(com.alexandreolival.project2_popularmovies.R.string.vote_average_maximum_score);
             textViewRating.setText(score);
             textViewReleaseDate.setText(mMovie.getReleaseDate());
+
+            if (!mMovie.getTrailers().isEmpty() && mMovie.getTrailers() != null) {
+                RecyclerView trailersRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_trailers);
+                trailersRecyclerView.setHasFixedSize(true);
+
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+                linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                trailersRecyclerView.setLayoutManager(linearLayoutManager);
+
+                TrailerAdapter trailerAdapter = new TrailerAdapter(this, this);
+                trailerAdapter.setTrailerList(mMovie.getTrailers());
+                trailersRecyclerView.setAdapter(trailerAdapter);
+                trailersRecyclerView.setNestedScrollingEnabled(false);
+            } else if (mMovie.getTrailers().isEmpty() || mMovie.getTrailers() == null) {
+                findViewById(R.id.recycler_view_trailers).setVisibility(View.GONE);
+                findViewById(R.id.label_movie_trailers).setVisibility(View.GONE);
+            }
 
         } else {
             Toast.makeText(this, getString(R.string.toast_movie_detail_error),
@@ -159,4 +182,13 @@ public class DetailActivity extends AppCompatActivity {
         return intent;
     }
 
+    @Override
+    public void onShareButtonClicked(Trailer clickedItem, View view) {
+        Toast.makeText(this, "Share " + clickedItem.getTitle(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onWatchButtonClicked(Trailer clickedItem, View view) {
+        Toast.makeText(this, "Watch " + clickedItem.getTitle(), Toast.LENGTH_SHORT).show();
+    }
 }

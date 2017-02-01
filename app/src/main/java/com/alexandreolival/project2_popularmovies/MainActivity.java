@@ -1,5 +1,6 @@
 package com.alexandreolival.project2_popularmovies;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -67,9 +68,8 @@ public class MainActivity extends AppCompatActivity implements
     protected ProgressBar mProgressBarLoadingMovies;
     private RecyclerView mRecyclerView;
 
+    protected ProgressDialog mProgressDialog;
     protected int mCurrentSortingOrder;
-
-    // So the trailers & reviews loader knows which object it's referring too
     protected Movie mClickedMovie;
 
     // Yikes... after writing this, I researched a way to separate these off the MainActivity.
@@ -160,7 +160,8 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         @Override
-        public void onLoaderReset(Loader<String> loader) {}
+        public void onLoaderReset(Loader<String> loader) {
+        }
     };
 
     private LoaderManager.LoaderCallbacks<Cursor> mFavoriteMoviesDatabaseLoaderListener
@@ -252,7 +253,8 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         @Override
-        public void onLoaderReset(Loader<Cursor> loader) {}
+        public void onLoaderReset(Loader<Cursor> loader) {
+        }
     };
 
     private LoaderManager.LoaderCallbacks<String> mTrailersAndReviewsLoaderListener
@@ -260,7 +262,6 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public Loader<String> onCreateLoader(int id, final Bundle args) {
             return new AsyncTaskLoader<String>(getBaseContext()) {
-
                 String jsonResponse;
 
                 @Override
@@ -303,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public void onLoadFinished(Loader<String> loader, String data) {
+            mProgressDialog.hide();
             ArrayList<Review> reviews = new ArrayList<>();
             ArrayList<Trailer> trailers = new ArrayList<>();
             try {
@@ -345,7 +347,6 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d(TAG, "Got " + mClickedMovie.getTrailers().size() + " trailers and " +
                         mClickedMovie.getReviews().size() + " reviews for " + mClickedMovie.getTitle());
 
-
                 startActivity(DetailActivity.getIntent(MainActivity.this, mClickedMovie));
 
             } catch (JSONException e) {
@@ -355,7 +356,6 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public void onLoaderReset(Loader<String> loader) {
-
         }
     };
 
@@ -384,6 +384,10 @@ public class MainActivity extends AppCompatActivity implements
 
         mMovieAdapter = new MovieAdapter(this);
         mRecyclerView.setAdapter(mMovieAdapter);
+
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage(getString(R.string.progress_dialog_trailers_and_reviews_message));
+        mProgressDialog.setIndeterminate(true);
 
         if (savedInstanceState == null) {
             // First load
@@ -487,6 +491,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void loadMovieReviewsAndTrailers() {
+        mProgressDialog.show();
         Uri builtUri = Uri.parse(NetworkUtil.BASE_MOVIEDB_METADATA_URL).buildUpon()
                 .appendPath(mClickedMovie.getMovieId())
                 .appendQueryParameter(NetworkUtil.PARAMETER_API_KEY, NetworkUtil.API_KEY)

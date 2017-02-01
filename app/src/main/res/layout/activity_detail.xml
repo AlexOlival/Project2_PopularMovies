@@ -6,134 +6,135 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
-
-        android:id="@+id/activity_detail"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".DetailActivity">
+        android:orientation="vertical">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/image_view_movie_detail_poster"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:contentDescription="@string/content_description_movie_poster"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_favorite"/>
+            <ImageView
+                android:id="@+id/image_view_movie_detail_poster"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="19dp"
+                android:contentDescription="@string/content_description_movie_poster"
+                app:srcCompat="@drawable/ic_favorite"/>
+
+            <TextView
+                android:id="@+id/text_view_movie_title"
+                style="@style/Base.TextAppearance.AppCompat.Headline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/image_view_movie_detail_poster"
+                android:layout_centerInParent="true"
+                android:layout_marginTop="15dp"
+                tools:text="Blockbuster!"/>
+
+            <TextView
+                android:id="@+id/label_movie_rating"
+                style="@style/textLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/text_view_movie_title"
+                android:layout_marginLeft="14dp"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="12dp"
+                android:drawableLeft="@drawable/ic_score"
+                android:drawableStart="@drawable/ic_score"
+                android:text="@string/rating"/>
+
+            <TextView
+                android:id="@+id/text_view_movie_rating"
+                style="@style/textRegular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/label_movie_rating"
+                android:layout_alignStart="@+id/label_movie_rating"
+                android:layout_below="@+id/label_movie_rating"
+                tools:text="10/10"/>
+
+            <TextView
+                android:id="@+id/label_movie_release_date"
+                style="@style/textLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/text_view_movie_rating"
+                android:layout_alignStart="@+id/text_view_movie_rating"
+                android:layout_below="@+id/text_view_movie_rating"
+                android:layout_marginTop="16dp"
+                android:drawableLeft="@drawable/ic_release_date"
+                android:drawableStart="@drawable/ic_release_date"
+                android:text="@string/release_date"/>
+
+            <TextView
+                android:id="@+id/text_view_movie_release_date"
+                style="@style/textRegular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/label_movie_release_date"
+                android:layout_alignStart="@+id/label_movie_release_date"
+                android:layout_below="@+id/label_movie_release_date"
+                tools:text="24/12/2015"/>
+
+            <TextView
+                android:id="@+id/label_movie_synopsis"
+                style="@style/textLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/text_view_movie_release_date"
+                android:layout_alignStart="@+id/text_view_movie_release_date"
+                android:layout_below="@+id/text_view_movie_release_date"
+                android:layout_marginTop="11dp"
+                android:drawableLeft="@drawable/ic_synopsis"
+                android:drawableStart="@drawable/ic_synopsis"
+                android:text="@string/synopsis"/>
+
+            <TextView
+                android:id="@+id/text_view_movie_synopsis"
+                style="@style/textRegular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/label_movie_synopsis"
+                android:layout_alignStart="@+id/label_movie_synopsis"
+                android:layout_below="@+id/label_movie_synopsis"
+                android:layout_marginEnd="14dp"
+                android:layout_marginRight="14dp"
+                android:ellipsize="none"
+                tools:text="One heck of a dandy handy movie!
+                Michael Bay nails it on this one. KABOOM"/>
+        </RelativeLayout>
 
         <TextView
-            android:id="@+id/text_view_movie_title"
-            style="@style/Base.TextAppearance.AppCompat.Headline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_view_movie_detail_poster"
-            tools:text="Blockbuster!"/>
-
-        <TextView
-            android:id="@+id/label_movie_rating"
+            android:id="@+id/label_movie_trailers"
             style="@style/textLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="224dp"
-            android:drawableLeft="@drawable/ic_score"
-            android:drawableStart="@drawable/ic_score"
-            android:text="@string/rating"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:layout_marginLeft="14dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="11dp"
+            android:drawableLeft="@drawable/ic_trailers"
+            android:drawableStart="@drawable/ic_trailers"
+            android:text="@string/trailers"/>
 
-        <TextView
-            android:id="@+id/text_view_movie_rating"
-            style="@style/textRegular"
-            android:layout_width="wrap_content"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_trailers"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="10/10"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginRight="16dp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintLeft_toRightOf="@+id/label_movie_rating"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="232dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHorizontal_bias="0.8"/>
+            android:scrollbars="vertical"/>
 
-        <TextView
-            style="@style/textLabel"
-            android:drawableLeft="@drawable/ic_release_date"
-            android:drawableStart="@drawable/ic_release_date"
-            android:layout_width="129dp"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_reviews"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/label_movie_release_date"
-            android:text="@string/release_date"
-            android:layout_marginStart="16dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="264dp"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:scrollbars="vertical"/>
 
-        <TextView
-            tools:text="24/12/2015"
-            style="@style/textRegular"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/text_view_movie_release_date"
-            android:layout_marginEnd="40dp"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginRight="40dp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintLeft_toRightOf="@+id/label_movie_release_date"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/text_view_movie_rating"
-            app:layout_constraintHorizontal_bias="0.8"/>
+    </LinearLayout>
 
-        <TextView
-            android:text="@string/synopsis"
-            style="@style/textLabel"
-            android:drawableLeft="@drawable/ic_synopsis"
-            android:drawableStart="@drawable/ic_synopsis"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/label_movie_synopsis"
-            android:layout_marginStart="16dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="304dp"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <TextView
-            tools:text="One heck of a dandy handy movie! Michael Bay nails it on this one. KABOOM"
-            style="@style/textRegular"
-            android:ellipsize="none"
-            android:layout_width="352dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/text_view_movie_synopsis"
-            android:layout_marginStart="16dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginRight="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/label_movie_synopsis"
-            app:layout_constraintHorizontal_bias="0.0"/>
-
-    </android.support.constraint.ConstraintLayout>
 </android.support.v4.widget.NestedScrollView>

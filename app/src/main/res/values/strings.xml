@@ -21,4 +21,8 @@
     <string name="release_date">Release Date</string>
     <string name="synopsis">Synopsis</string>
     <string name="toast_error_no_internet_trailers_reviews"><![CDATA[No connection - could not fetch trailers & reviews!]]></string>
+    <string name="progress_dialog_trailers_and_reviews_message">Loading</string>
+    <string name="button_watch_trailer_text">Watch</string>
+    <string name="button_share_trailer_text">Share</string>
+    <string name="trailers">Trailers</string>
 </resources>
