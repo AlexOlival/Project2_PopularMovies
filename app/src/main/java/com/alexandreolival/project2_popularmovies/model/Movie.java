@@ -49,10 +49,6 @@ public class Movie implements Parcelable {
         return posterPath;
     }
 
-    public void setPosterPath(String posterPath) {
-        this.posterPath = posterPath;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -65,32 +61,16 @@ public class Movie implements Parcelable {
         return releaseDate;
     }
 
-    public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate;
-    }
-
     public String getVoteAverage() {
         return voteAverage;
-    }
-
-    public void setVoteAverage(String voteAverage) {
-        this.voteAverage = voteAverage;
     }
 
     public String getSynopsis() {
         return synopsis;
     }
 
-    public void setSynopsis(String synopsis) {
-        this.synopsis = synopsis;
-    }
-
     public String getMovieId() {
         return movieId;
-    }
-
-    public void setMovieId(String id) {
-        this.movieId = id;
     }
 
     public List<Trailer> getTrailers() {

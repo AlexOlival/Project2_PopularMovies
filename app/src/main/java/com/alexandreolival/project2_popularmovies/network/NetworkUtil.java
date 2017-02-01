@@ -23,6 +23,8 @@ public class NetworkUtil {
     public static final String PARAMETER_APPEND_MOVIE_DETAILS = "append_to_response";
     public static final String MOVIE_DETAILS = "videos,reviews";
 
+    public static final String BASE_YOUTUBE_VIDEO_URL = "https://www.youtube.com/watch?v=";
+
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         Log.d(TAG, "Performing network request with URL " + url.toString());
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

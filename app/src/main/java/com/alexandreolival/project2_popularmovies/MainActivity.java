@@ -25,6 +25,8 @@ import android.widget.Toast;
 
 import com.alexandreolival.project2_popularmovies.adapters.MovieAdapter;
 import com.alexandreolival.project2_popularmovies.model.Movie;
+import com.alexandreolival.project2_popularmovies.model.Review;
+import com.alexandreolival.project2_popularmovies.model.Trailer;
 import com.alexandreolival.project2_popularmovies.network.NetworkUtil;
 import com.alexandreolival.project2_popularmovies.persistence.FavoriteMoviesContract;
 
@@ -51,7 +53,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private static final int MOVIE_DB_LOADER_ID = 22;
     private static final int FAVORITE_DB_LOADER_ID = 23;
+    private static final int TRAILERS_REVIEWS_LOADER_ID = 24;
     private static final String MOVIE_DB_QUERY_URL_EXTRA = "MOVIE_DB_QUERY_URL";
+    private static final String MOVIE_DB_URL_EXTRA = "MOVIE_DB_URL";
 
     private Button mButtonRetry;
     private TextView mTextViewNoInternetConnection;
@@ -59,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements
     private RecyclerView mRecyclerView;
 
     protected int mCurrentSortingOrder;
+
+    // So the trailers & reviews loader knows which object he's refering too
+    protected Movie mClickedMovie;
 
     // Yikes... after writing this, I researched a way to separate these off the MainActivity.
     // but for the sake of speed, I'll leave them as inner classes.
@@ -217,17 +224,13 @@ public class MainActivity extends AppCompatActivity implements
 
             cursor.close();
 
-            if (movieArrayList.size() == 0 && mCurrentSortingOrder == SHOWING_FAVORITES) {
+            if (movieArrayList.size() == 0) {
                 Toast.makeText(MainActivity.this, R.string.toast_no_favorites,
                         Toast.LENGTH_SHORT).show();
-                // There are no favorites! Default to sorting movies by popularity
-                if (checkInternetConnectivity()) {
-                    loadMoviesSortedByPopularity();
-                } else {
-                    showNoInternetConnectionViews();
-                }
+                // There are no favorites! Do nothing
             } else {
-                // This way I don't need to create a new adapter. It's still an array!
+                // We have favorites!
+                mCurrentSortingOrder = SHOWING_FAVORITES;
                 mMovieAdapter.setMovieList(movieArrayList);
             }
 
@@ -238,15 +241,119 @@ public class MainActivity extends AppCompatActivity implements
         public void onLoaderReset(Loader<Cursor> loader) {}
     };
 
+    private LoaderManager.LoaderCallbacks<String> mTrailersAndReviewsLoaderListener
+            = new LoaderManager.LoaderCallbacks<String>() {
+        @Override
+        public Loader<String> onCreateLoader(int id, final Bundle args) {
+            return new AsyncTaskLoader<String>(getBaseContext()) {
+
+                String jsonResponse;
+
+                @Override
+                protected void onStartLoading() {
+                    super.onStartLoading();
+                    if (args == null) {
+                        return;
+                    }
+
+                    if (jsonResponse != null) {
+                        deliverResult(jsonResponse);
+                    } else {
+                        forceLoad();
+                    }
+                }
+
+                @Override
+                public String loadInBackground() {
+                    String searchQueryUrlString = args.getString(MOVIE_DB_URL_EXTRA);
+                    if (searchQueryUrlString == null || searchQueryUrlString.isEmpty()) {
+                        return null;
+                    }
+
+                    try {
+                        URL url = new URL(searchQueryUrlString);
+                        return NetworkUtil.getResponseFromHttpUrl(url);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                }
+
+                @Override
+                public void deliverResult(String jsonResponse) {
+                    this.jsonResponse = jsonResponse;
+                    super.deliverResult(jsonResponse);
+                }
+            };
+        }
+
+        @Override
+        public void onLoadFinished(Loader<String> loader, String data) {
+            ArrayList<Review> reviews = new ArrayList<>();
+            ArrayList<Trailer> trailers = new ArrayList<>();
+            try {
+                JSONObject jsonResponse = new JSONObject(data);
+                JSONArray jsonTrailersArray =
+                        jsonResponse.getJSONObject("videos").getJSONArray("results");
+                JSONArray jsonReviewsArray =
+                        jsonResponse.getJSONObject("reviews").getJSONArray("results");
+                //Log.d(TAG, "jsonTrailersArray" + jsonTrailersArray);
+                //Log.d(TAG, "jsonReviewsArray: " + jsonReviewsArray);
+
+                JSONObject review;
+                for (int i = 0, length = jsonReviewsArray.length(); i < length; i++) {
+                    review = jsonReviewsArray.getJSONObject(i);
+                    reviews.add(
+                            new Review(
+                                    review.getString("author"),
+                                    review.getString("content")
+                            )
+                    );
+                }
+
+                JSONObject trailer;
+                for (int i = 0, length = jsonTrailersArray.length(); i < length; i++) {
+                    trailer = jsonTrailersArray.getJSONObject(i);
+                    trailers.add(
+                            new Trailer(
+                                    trailer.getString("name"),
+                                    trailer.getString("key")
+                            )
+                    );
+                }
+
+                mClickedMovie.setReviews(reviews);
+                mClickedMovie.setTrailers(trailers);
+
+                //Log.d(TAG, "Movie reviews: " + mMovie.getReviews());
+                //Log.d(TAG, "Movie trailers: " + mMovie.getTrailers());
+
+                Log.d(TAG, "Got " + mClickedMovie.getTrailers().size() + " trailers and " +
+                        mClickedMovie.getReviews().size() + " reviews for " + mClickedMovie.getTitle());
+
+
+                startActivity(DetailActivity.getIntent(MainActivity.this, mClickedMovie));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<String> loader) {
+
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.alexandreolival.project2_popularmovies.R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
-        mProgressBarLoadingMovies = (ProgressBar) findViewById(com.alexandreolival.project2_popularmovies.R.id.progress_bar_loading_movies);
+        mProgressBarLoadingMovies = (ProgressBar) findViewById(R.id.progress_bar_loading_movies);
 
-        mTextViewNoInternetConnection = (TextView) findViewById(com.alexandreolival.project2_popularmovies.R.id.text_view_no_internet_connection);
-        mButtonRetry = (Button) findViewById(com.alexandreolival.project2_popularmovies.R.id.button_retry_loading_movies);
+        mTextViewNoInternetConnection = (TextView) findViewById(R.id.text_view_no_internet_connection);
+        mButtonRetry = (Button) findViewById(R.id.button_retry_loading_movies);
         mButtonRetry.setOnClickListener(this);
 
         GridLayoutManager gridLayoutManager;
@@ -257,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements
             gridLayoutManager = new GridLayoutManager(this, 4);
         }
 
-        mRecyclerView = (RecyclerView) findViewById(com.alexandreolival.project2_popularmovies.R.id.recycler_view_movies);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_movies);
         mRecyclerView.setLayoutManager(gridLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
@@ -274,12 +381,12 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onResume() {
-        super.onRestart();
+        super.onResume();
 
         // Check if there was any changes on the favorites database after resuming from
-        // DetailActivity like if the user removed a movie from the favorites
-        // A bit messy because I'm avoiding to use another adapter with cursor just for the
-        // favorites, and I'm using the same with an array
+        // DetailActivity, like if the user removed a movie from the favorites. A bit messy
+        // because I'm avoiding to use another adapter with a cursor just for the favorites
+        // but it's working fine so far. DRY right?
 
         if (mCurrentSortingOrder == SHOWING_FAVORITES) {
             getSupportLoaderManager().restartLoader(FAVORITE_DB_LOADER_ID, null,
@@ -333,17 +440,69 @@ public class MainActivity extends AppCompatActivity implements
                 mMovieDatabaseLoaderListener);
     }
 
+    private void loadMovieReviewsAndTrailers() {
+        Uri builtUri = Uri.parse(NetworkUtil.BASE_MOVIEDB_METADATA_URL).buildUpon()
+                .appendPath(mClickedMovie.getMovieId())
+                .appendQueryParameter(NetworkUtil.PARAMETER_API_KEY, NetworkUtil.API_KEY)
+                .appendQueryParameter(NetworkUtil.PARAMETER_APPEND_MOVIE_DETAILS, NetworkUtil.MOVIE_DETAILS)
+                .build();
+
+        //Log.d(TAG, builtUri.toString());
+
+        URL url = null;
+
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Bundle queryBundle = new Bundle();
+        if (url != null) {
+            queryBundle.putString(MOVIE_DB_URL_EXTRA, url.toString());
+        }
+
+        getSupportLoaderManager().restartLoader(TRAILERS_REVIEWS_LOADER_ID, queryBundle,
+                mTrailersAndReviewsLoaderListener);
+    }
+
     @Override
     public void onListItemClicked(Movie clickedMovieItem, View view) {
         Log.d(TAG, "Clicked movie with the following data: " + clickedMovieItem.toString());
         Log.d(TAG, "Starting DetailActivity");
 
-        if (isInFavoriteDatabase(clickedMovieItem)) {
+        mClickedMovie = clickedMovieItem;
+
+        if (isInFavoriteDatabase(mClickedMovie)) {
             // Let DetailActivity know this is a favorite movie
-            clickedMovieItem.setFavorite(true);
+            mClickedMovie.setFavorite(true);
         }
 
-        startActivity(DetailActivity.getIntent(this, clickedMovieItem));
+        // Prefetch the trailers and movies lazy load style
+        if (checkInternetConnectivity()) {
+            // we have internet
+            if (clickedMovieItem.getTrailers() == null || clickedMovieItem.getReviews() == null) {
+                // no trailers or reviews, fetch and launch!
+                loadMovieReviewsAndTrailers();
+            } else {
+                // we already have trailers or reviews, launch!
+                startActivity(DetailActivity.getIntent(this, mClickedMovie));
+            }
+        } else if (!checkInternetConnectivity()) {
+            // no internet
+            if (clickedMovieItem.getTrailers() != null || clickedMovieItem.getReviews() != null) {
+                // if we have trailers or reviews, all good
+                startActivity(DetailActivity.getIntent(this, mClickedMovie));
+            } else {
+                // else we should warn the user
+                Toast.makeText(this, R.string.toast_error_no_internet_trailers_reviews,
+                        Toast.LENGTH_SHORT).show();
+                startActivity(DetailActivity.getIntent(this, mClickedMovie));
+            }
+        }
+
+        // I probably could simplify the if statement but... I'm too scared
+        // http://s2.quickmeme.com/img/b4/b43f97387755436edb3fbad990afa7a13e51204aaf7cfb6e9cbfdd1d9d10f8ac.jpg
+
     }
 
     private boolean isInFavoriteDatabase(Movie clickedMovieItem) {
@@ -392,7 +551,6 @@ public class MainActivity extends AppCompatActivity implements
                 return true;
 
             case R.id.show_favorites:
-                mCurrentSortingOrder = SHOWING_FAVORITES;
                 // Irrelevant if we have network or not
                 hideNoInternetConnectionViews();
                 getSupportLoaderManager().restartLoader(FAVORITE_DB_LOADER_ID, null,
