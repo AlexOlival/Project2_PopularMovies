@@ -13,6 +13,14 @@ public class Review implements Parcelable {
         this.content = content;
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
     @Override
     public int describeContents() {
         return 0;

@@ -15,4 +15,14 @@
     <string name="toast_no_favorites">Não tem filmes favoritos!</string>
     <string name="toast_removed_from_favorites">Removido dos favoritos!</string>
     <string name="toast_saved_to_favorites">Adicionado aos favoritos!</string>
+    <string name="label_rating">Pontuação</string>
+    <string name="label_release_date">Data de Lançamento</string>
+    <string name="label_reviews">Críticas</string>
+    <string name="label_synopsis">Sinopse</string>
+    <string name="label_trailers">Trailers</string>
+    <string name="button_share_trailer_text">Partilhar</string>
+    <string name="button_watch_trailer_text">Ver</string>
+    <string name="progress_dialog_trailers_and_reviews_message">A carregar</string>
+    <string name="share_trailer_to">Partilhar ligação usando</string>
+    <string name="toast_error_no_internet_trailers_reviews">Sem ligação - não foi possível carregar trailers e críticas</string>
 </resources>

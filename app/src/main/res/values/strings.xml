@@ -17,12 +17,14 @@
     <string name="toast_error_saving_to_favorites">Error saving to favorites!</string>
     <string name="toast_removed_from_favorites">Removed from favorites!</string>
     <string name="toast_error_removing_from_favorites">Could not remove movie from favorites</string>
-    <string name="rating">Rating</string>
-    <string name="release_date">Release Date</string>
-    <string name="synopsis">Synopsis</string>
-    <string name="toast_error_no_internet_trailers_reviews"><![CDATA[No connection - could not fetch trailers & reviews!]]></string>
+    <string name="label_rating">Rating</string>
+    <string name="label_release_date">Release Date</string>
+    <string name="label_synopsis">Synopsis</string>
+    <string name="toast_error_no_internet_trailers_reviews">No connection - could not fetch trailers and reviews</string>
     <string name="progress_dialog_trailers_and_reviews_message">Loading</string>
     <string name="button_watch_trailer_text">Watch</string>
     <string name="button_share_trailer_text">Share</string>
-    <string name="trailers">Trailers</string>
+    <string name="label_trailers">Trailers</string>
+    <string name="share_trailer_to">Share trailer link using</string>
+    <string name="label_reviews">Reviews</string>
 </resources>

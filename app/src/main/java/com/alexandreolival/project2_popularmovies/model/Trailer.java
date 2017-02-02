@@ -20,6 +20,10 @@ public class Trailer implements Parcelable {
         return title;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }

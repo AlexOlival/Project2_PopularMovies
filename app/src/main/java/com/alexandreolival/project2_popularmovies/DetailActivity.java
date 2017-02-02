@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alexandreolival.project2_popularmovies.adapters.ReviewAdapter;
 import com.alexandreolival.project2_popularmovies.adapters.TrailerAdapter;
 import com.alexandreolival.project2_popularmovies.model.Movie;
 import com.alexandreolival.project2_popularmovies.model.Trailer;
@@ -34,7 +35,7 @@ public class DetailActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.alexandreolival.project2_popularmovies.R.layout.activity_detail);
+        setContentView(R.layout.activity_detail);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -75,6 +76,24 @@ public class DetailActivity extends AppCompatActivity implements
             } else if (mMovie.getTrailers().isEmpty() || mMovie.getTrailers() == null) {
                 findViewById(R.id.recycler_view_trailers).setVisibility(View.GONE);
                 findViewById(R.id.label_movie_trailers).setVisibility(View.GONE);
+            }
+
+            if (!mMovie.getReviews().isEmpty() && mMovie.getReviews() != null) {
+                RecyclerView reviewsRecyclerView = (RecyclerView)
+                        findViewById(R.id.recycler_view_reviews);
+                reviewsRecyclerView.setHasFixedSize(true);
+
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+                linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                reviewsRecyclerView.setLayoutManager(linearLayoutManager);
+
+                ReviewAdapter reviewAdapter = new ReviewAdapter();
+                reviewAdapter.setReviewList(mMovie.getReviews());
+                reviewsRecyclerView.setAdapter(reviewAdapter);
+                reviewsRecyclerView.setNestedScrollingEnabled(false);
+            } else if (mMovie.getReviews().isEmpty() || mMovie.getReviews() == null) {
+                findViewById(R.id.recycler_view_reviews).setVisibility(View.GONE);
+                findViewById(R.id.label_movie_reviews).setVisibility(View.GONE);
             }
 
         } else {
@@ -184,11 +203,18 @@ public class DetailActivity extends AppCompatActivity implements
 
     @Override
     public void onShareButtonClicked(Trailer clickedItem, View view) {
-        Toast.makeText(this, "Share " + clickedItem.getTitle(), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Sharing " + clickedItem.getTitle());
+        Intent sharingIntent = new Intent();
+        sharingIntent.setAction(Intent.ACTION_SEND);
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, clickedItem.getUrl());
+        sharingIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sharingIntent,
+                getResources().getText(R.string.share_trailer_to)));
     }
 
     @Override
     public void onWatchButtonClicked(Trailer clickedItem, View view) {
-        Toast.makeText(this, "Watch " + clickedItem.getTitle(), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Opening trailer " + clickedItem.getUrl() + " on YouTube!");
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(clickedItem.getUrl())));
     }
 }

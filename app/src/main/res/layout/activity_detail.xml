@@ -48,7 +48,7 @@
                 android:layout_marginTop="12dp"
                 android:drawableLeft="@drawable/ic_score"
                 android:drawableStart="@drawable/ic_score"
-                android:text="@string/rating"/>
+                android:text="@string/label_rating"/>
 
             <TextView
                 android:id="@+id/text_view_movie_rating"
@@ -71,7 +71,7 @@
                 android:layout_marginTop="16dp"
                 android:drawableLeft="@drawable/ic_release_date"
                 android:drawableStart="@drawable/ic_release_date"
-                android:text="@string/release_date"/>
+                android:text="@string/label_release_date"/>
 
             <TextView
                 android:id="@+id/text_view_movie_release_date"
@@ -94,7 +94,7 @@
                 android:layout_marginTop="11dp"
                 android:drawableLeft="@drawable/ic_synopsis"
                 android:drawableStart="@drawable/ic_synopsis"
-                android:text="@string/synopsis"/>
+                android:text="@string/label_synopsis"/>
 
             <TextView
                 android:id="@+id/text_view_movie_synopsis"
@@ -121,13 +121,25 @@
             android:layout_marginTop="11dp"
             android:drawableLeft="@drawable/ic_trailers"
             android:drawableStart="@drawable/ic_trailers"
-            android:text="@string/trailers"/>
+            android:text="@string/label_trailers"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view_trailers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scrollbars="vertical"/>
+
+        <TextView
+            android:id="@+id/label_movie_reviews"
+            style="@style/textLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="14dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="11dp"
+            android:drawableLeft="@drawable/ic_reviews"
+            android:drawableStart="@drawable/ic_reviews"
+            android:text="@string/label_reviews"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view_reviews"
