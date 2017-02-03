@@ -18,7 +18,7 @@ public class NetworkUtil {
     public static final String PATH_SORT_BY_POPULAR = "popular";
     public static final String PATH_SORT_BY_RATING = "top_rated";
 
-    public static final String API_KEY = "6d1bcca4ac9f8068563dc28464b30779";
+    public static final String API_KEY = "API_KEY_GOES_HERE";
     public static final String PARAMETER_API_KEY = "api_key";
     public static final String PARAMETER_APPEND_MOVIE_DETAILS = "append_to_response";
     public static final String MOVIE_DETAILS = "videos,reviews";
